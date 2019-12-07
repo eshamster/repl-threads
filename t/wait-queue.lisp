@@ -18,7 +18,8 @@
                  (signal-semaphore sem))))))
     (make-thread (lambda ()
                    (sleep timeout-sec)
-                   (destroy-thread th)))))
+                   (ignore-errors
+                     (destroy-thread th))))))
 
 (defun make-sems (n)
   (loop :for x :from 0 :below n :collect (make-semaphore)))
