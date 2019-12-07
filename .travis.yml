@@ -1,0 +1,14 @@
+sudo: false
+service:
+  - docker
+
+env:
+  matrix:
+    - LISP=sbcl-bin
+    - LISP=ccl-bin
+
+before_install:
+  - docker build -t test test-docker
+
+script:
+  - test-docker/run.sh
