@@ -22,6 +22,6 @@
     (dolist (ts test-seq)
       (destructuring-bind (op val count) ts
         (ecase op
-          (:q (queue q val))
+          (:q (ok (queue q val) val))
           (:d (ok (eq (dequeue q) val))))
         (ok (= (queue-length q) count))))))

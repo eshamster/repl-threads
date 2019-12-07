@@ -31,7 +31,8 @@
                (let ((next-item tail))
                  (setf tail item
                        (queue-item-next item) next-item
-                       (queue-item-prev next-item) item)))))))
+                       (queue-item-prev next-item) item)))))
+    value))
 
 (defmethod dequeue ((q queue))
   (setf (queue-length q)
