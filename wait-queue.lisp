@@ -20,7 +20,7 @@
 (defclass wait-queue ()
   ((queue :initform (make-queue) :reader wq-queue)
    (cond-var :initform (make-condition-variable :name "WAIT QUEUE COND") :reader wq-cond-var)
-   (wait-p :initform nil :accessor wq-wait-p)
+   (wait-count :initform 0 :accessor wq-wait-count)
    (lock :initform (make-lock "WAIT QUEUE LOCK") :reader wq-lock)))
 
 (defun make-wait-queue ()
@@ -30,7 +30,8 @@
   (let ((q (wq-queue wq)))
     (with-lock-held ((wq-lock wq))
       (queue q value)
-      (when (wq-wait-p wq)
+      (when (> (wq-wait-count wq) 0)
+        (decf (wq-wait-count wq))
         (condition-notify (wq-cond-var wq))))))
 
 (defmethod dequeue ((wq wait-queue))
@@ -38,9 +39,8 @@
         (q (wq-queue wq)))
     (with-lock-held (lock)
       (when (= (queue-length q) 0)
-        (setf (wq-wait-p wq) t)
+        (incf (wq-wait-count wq))
         ;; wait until some value is queued
-        (condition-wait (wq-cond-var wq) lock)
-        (setf (wq-wait-p wq) nil))
+        (condition-wait (wq-cond-var wq) lock))
       (assert (> (queue-length q) 0))
       (dequeue q))))
